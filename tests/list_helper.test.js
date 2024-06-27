@@ -283,7 +283,7 @@ describe('Most blogs', () => {
       }
     ]
     const solution = {
-      author: "Robert C. Martin",
+      author: 'Robert C. Martin',
       blogs: 3
     }
     const result = listHelper.mostBlogs(list)
@@ -361,6 +361,141 @@ describe('Most blogs', () => {
     ]
     const result = listHelper.mostBlogs(list)
     const matches = possibleAuthors.filter(possible => possible.author === result.author)[0]
+    assert.deepStrictEqual(matches, result)
+  })
+
+  describe('most liked blog', () => {
+    test('should return one author (Dijkstra', () => {
+      const list = [
+        {
+          _id: '5a422a851b54a676234d17f7',
+          title: 'React patterns',
+          author: 'Edsger W. Dijkstra',
+          url: 'https://reactpatterns.com/',
+          likes: 7,
+          __v: 0
+        },
+        {
+          _id: '5a422aa71b54a676234d17f8',
+          title: 'Go To Statement Considered Harmful',
+          author: 'Edsger W. Dijkstra',
+          url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
+          likes: 5,
+          __v: 0
+        },
+        {
+          _id: '5a422b3a1b54a676234d17f9',
+          title: 'Canonical string reduction',
+          author: 'Edsger W. Dijkstra',
+          url: 'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
+          likes: 12,
+          __v: 0
+        },
+        {
+          _id: '5a422b891b54a676234d17fa',
+          title: 'First class tests',
+          author: 'Robert C. Martin',
+          url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll',
+          likes: 10,
+          __v: 0
+        },
+        {
+          _id: '5a422ba71b54a676234d17fb',
+          title: 'TDD harms architecture',
+          author: 'Robert C. Martin',
+          url: 'http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html',
+          likes: 2,
+          __v: 0
+        },
+        {
+          _id: '5a422bc61b54a676234d17fc',
+          title: 'Type wars',
+          author: 'Robert C. Martin',
+          url: 'http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html',
+          likes: 2,
+          __v: 0
+        }
+      ]
+      const solution = { author: 'Edsger W. Dijkstra', likes: 24 }
+      const result = listHelper.mostLikes(list)
+
+      assert.deepStrictEqual(result, solution)
+    })
+  })
+
+  test('should return null if given list is empty', () => {
+    const list = []
+
+    const result = listHelper.mostLikes(list)
+
+    assert.strictEqual(result, null)
+  })
+
+  test('returns one author when multiple with the same quantity of likes', () => {
+
+    const list = [
+      {
+        _id: '5a422a851b54a676234d17f7',
+        title: 'React patterns',
+        author: 'Edsger W. Dijkstra',
+        url: 'https://reactpatterns.com/',
+        likes: 10,
+        __v: 0
+      },
+      {
+        _id: '5a422aa71b54a676234d17f8',
+        title: 'Go To Statement Considered Harmful',
+        author: 'Edsger W. Dijkstra',
+        url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
+        likes: 20,
+        __v: 0
+      },
+      {
+        _id: '5a422b3a1b54a676234d17f9',
+        title: 'Canonical string reduction',
+        author: 'Edsger W. Dijkstra',
+        url: 'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
+        likes: 20,
+        __v: 0
+      },
+      {
+        _id: '5a422b891b54a676234d17fa',
+        title: 'First class tests',
+        author: 'Robert C. Martin',
+        url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll',
+        likes: 10,
+        __v: 0
+      },
+      {
+        _id: '5a422ba71b54a676234d17fb',
+        title: 'TDD harms architecture',
+        author: 'Robert C. Martin',
+        url: 'http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html',
+        likes: 20,
+        __v: 0
+      },
+      {
+        _id: '5a422bc61b54a676234d17fc',
+        title: 'Type wars',
+        author: 'Robert C. Martin',
+        url: 'http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html',
+        likes: 20,
+        __v: 0
+      }
+    ]
+
+    const possibleLikes = [
+      {
+        author: 'Edsger W. Dijkstra',
+        likes: 50
+      },
+      {
+        author: 'Robert C. Martin',
+        likes: 50
+      }
+    ]
+    const result = listHelper.mostLikes(list)
+    const matches = possibleLikes.filter(possible => possible.likes === result.likes)[0]
     assert.deepStrictEqual(matches, result)
   })
 })
