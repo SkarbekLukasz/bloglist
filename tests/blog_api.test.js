@@ -40,20 +40,39 @@ describe('API integration tests', () => {
       .expect(200)
       .expect('Content-Type', /application\/json/)
   })
-  
+
   test('returns 2 blogs in response', async () => {
     const response = await api.get('/api/blogs')
-  
+
     assert(response.body.length, 2)
   })
-  
+
   test('return proper id property within DB ojects', async () => {
     const response = await api.get('/api/blogs')
-  
+
     const firstBlog = response.body[0]
     const isID = Object.keys(firstBlog).some(key => key ==='id')
-  
+
     assert(isID, true)
+  })
+
+  test('successfully save new blog to database', async () => {
+    const blogToSave = {
+      author: 'John Caramba',
+      uri: 'http://localhost:3001/john',
+      likes: 100
+    }
+
+    await api.post('/api/blogs')
+      .send(blogToSave)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    const response = await api.get('/api/blogs')
+    const contents = response.body.map(r => r.author)
+
+    assert.strictEqual(response.body.length, initialBlogs.length + 1)
+    assert(contents.includes('John Caramba'))
   })
 })
 
