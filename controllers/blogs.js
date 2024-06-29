@@ -8,7 +8,6 @@ blogsRouter.get('/', async (request, response) => {
 
 blogsRouter.post('/', async (request, response) => {
   let blog = new Blog(request.body)
-
   const result = await blog.save()
   response.status(201).json(result)
 

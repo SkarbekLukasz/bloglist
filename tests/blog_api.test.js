@@ -95,6 +95,17 @@ describe('API integration tests', () => {
   })
 })
 
+test('Responds with 400 when given invalid request', async () => {
+  const blogToSave = {
+    author: 'John Caramba',
+    url: 'http://localhost:3001/john',
+  }
+
+  await api.post('/api/blogs')
+    .send(blogToSave)
+    .expect(400)
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
