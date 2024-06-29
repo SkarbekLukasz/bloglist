@@ -93,17 +93,42 @@ describe('API integration tests', () => {
 
     assert(contents.includes(0))
   })
-})
+  test('Responds with 400 when given invalid request', async () => {
+    const blogToSave = {
+      author: 'John Caramba',
+      url: 'http://localhost:3001/john',
+    }
 
-test('Responds with 400 when given invalid request', async () => {
-  const blogToSave = {
-    author: 'John Caramba',
-    url: 'http://localhost:3001/john',
-  }
+    await api.post('/api/blogs')
+      .send(blogToSave)
+      .expect(400)
+  })
+  test('should properly delete blog with given id', async () => {
+    const blogs = await api.get('/api/blogs')
+    const firstId = blogs.body[0].id
 
-  await api.post('/api/blogs')
-    .send(blogToSave)
-    .expect(400)
+    await api.delete(`/api/blogs/${firstId}`).expect(204)
+    const updatedBlogs = await api.get('/api/blogs')
+
+    assert.strictEqual(updatedBlogs.body.length, 1)
+  })
+  test('sholud return 400 when given invalid id', async () => {
+    const firstId = '123456789'
+
+    await api.delete(`/api/blogs/${firstId}`).expect(400)
+  })
+  test('should properly update document with given id', async () => {
+    const blogs = await api.get('/api/blogs')
+    const { id, author, title, url } = blogs.body[0]
+    const updateData = { author: author, title: title, url: url, likes: 200 }
+    const result = await api.put(`/api/blogs/${id}`).send(updateData).expect(200).expect('Content-Type', /application\/json/)
+    assert.strictEqual(result.body.likes, 200)
+  })
+  test('sholud return 400 when given invalid id for update', async () => {
+    const firstId = '123456789'
+
+    await api.put(`/api/blogs/${firstId}`).expect(400)
+  })
 })
 
 after(async () => {

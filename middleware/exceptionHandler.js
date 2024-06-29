@@ -17,6 +17,8 @@ const errorHandler = (error, request, response, next) => {
 
   if(error.name === 'ValidationError') {
     return response.status(400).send({ error: 'missing request data' })
+  } else if(error.name === 'CastError') {
+    return response.status(400).send({ error: 'Invalid id' })
   }
   next(error)
 }
