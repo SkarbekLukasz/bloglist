@@ -58,8 +58,9 @@ describe('API integration tests', () => {
 
   test('successfully save new blog to database', async () => {
     const blogToSave = {
+      title: 'Blog poster',
       author: 'John Caramba',
-      uri: 'http://localhost:3001/john',
+      url: 'http://localhost:3001/john',
       likes: 100
     }
 
@@ -73,6 +74,24 @@ describe('API integration tests', () => {
 
     assert.strictEqual(response.body.length, initialBlogs.length + 1)
     assert(contents.includes('John Caramba'))
+  })
+
+  test('missing likes property is set to 0 in DB', async () => {
+    const blogToSave = {
+      title: 'Blog tester',
+      author: 'John Caramba',
+      url: 'http://localhost:3001/john',
+    }
+
+    await api.post('/api/blogs')
+      .send(blogToSave)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    const response = await api.get('/api/blogs')
+    const contents = response.body.map(r => r.likes)
+
+    assert(contents.includes(0))
   })
 })
 
