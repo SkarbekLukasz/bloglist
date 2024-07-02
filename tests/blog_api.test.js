@@ -5,6 +5,8 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const { DB_URL } = require('../utils/config')
+const User = require('../models/user')
+const jwt = require('jsonwebtoken')
 
 const api = supertest(app)
 
@@ -14,12 +16,14 @@ const initialBlogs = [
     'author': 'Jane Doe',
     'url': 'http://localhost:3003',
     'likes': 100,
+    'user': new mongoose.Types.ObjectId('66843b4d2eac2b25963d4846')
   },
   {
     'title': 'Blog #2',
     'author': 'John Doe',
     'url': 'http://localhost:3001',
     'likes': 100,
+    'user': new mongoose.Types.ObjectId('66843b4d2eac2b25963d4846')
   }
 ]
 
@@ -63,8 +67,11 @@ describe('API integration tests', () => {
       url: 'http://localhost:3001/john',
       likes: 100
     }
+    const user = await User.findOne()
+    const token = jwt.sign({ username: user.username, id: user.id }, process.env.SECRET)
 
     await api.post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
       .send(blogToSave)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -81,8 +88,11 @@ describe('API integration tests', () => {
       author: 'John Caramba',
       url: 'http://localhost:3001/john',
     }
+    const user = await User.findOne()
+    const token = jwt.sign({ username: user.username, id: user.id }, process.env.SECRET)
 
     await api.post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
       .send(blogToSave)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -97,16 +107,21 @@ describe('API integration tests', () => {
       author: 'John Caramba',
       url: 'http://localhost:3001/john',
     }
+    const user = await User.findOne()
+    const token = jwt.sign({ username: user.username, id: user.id }, process.env.SECRET)
 
     await api.post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
       .send(blogToSave)
       .expect(400)
   })
   test('should properly delete blog with given id', async () => {
     const blogs = await api.get('/api/blogs')
     const firstId = blogs.body[0].id
+    const user = blogs.body[0].user
+    const token = jwt.sign({ username: user.username, id: user.id }, process.env.SECRET)
 
-    await api.delete(`/api/blogs/${firstId}`).expect(204)
+    await api.delete(`/api/blogs/${firstId}`).set('Authorization', `Bearer ${token}`).expect(204)
     const updatedBlogs = await api.get('/api/blogs')
 
     assert.strictEqual(updatedBlogs.body.length, 1)
@@ -123,10 +138,25 @@ describe('API integration tests', () => {
     const result = await api.put(`/api/blogs/${id}`).send(updateData).expect(200).expect('Content-Type', /application\/json/)
     assert.strictEqual(result.body.likes, 200)
   })
-  test('sholud return 400 when given invalid id for update', async () => {
+  test('should return 400 when given invalid id for update', async () => {
     const firstId = '123456789'
 
     await api.put(`/api/blogs/${firstId}`).expect(400)
+  })
+  test('should return 401 when token is missing from request', async () => {
+    const blogToSave = {
+      title: 'Blog poster',
+      author: 'John Caramba',
+      url: 'http://localhost:3001/john',
+      likes: 100
+    }
+
+    await api.post('/api/blogs').send(blogToSave).expect(401)
+  })
+  test('should return 401 when token is invalid', async () => {
+    const blog = await Blog.findOne()
+
+    await api.delete(`/api/blogs/${blog.id}`).expect(401)
   })
 })
 
