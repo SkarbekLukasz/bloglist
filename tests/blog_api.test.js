@@ -68,7 +68,6 @@ describe('API integration tests', () => {
       .send(blogToSave)
       .expect(201)
       .expect('Content-Type', /application\/json/)
-
     const response = await api.get('/api/blogs')
     const contents = response.body.map(r => r.author)
 

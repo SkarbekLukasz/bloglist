@@ -73,6 +73,23 @@ describe('user api tests', () => {
     }
     await api.post('/api/users').send(payload).expect(400).expect('Content-Type', /application\/json/)
   })
+  test('should return 200 and create new token for valid credentials', async () => {
+    const payload = {
+      username: 'Pabloo',
+      password: 'sekret'
+    }
+    const { body } = await api.post('/api/login').send(payload).expect(200).expect('Content-Type', /application\/json/)
+
+    assert(body.token)
+  })
+  test('should return 400 when given invalid credentials for login', async () => {
+    const payload = {
+      username: 'Pabloo',
+      password: 'sekret2'
+    }
+
+    await api.post('/api/login').send(payload).expect(401).expect('Content-Type', /application\/json/)
+  })
 })
 
 after(async () => {
